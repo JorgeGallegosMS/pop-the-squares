@@ -14,7 +14,8 @@ class GameScene: SKScene {
     var score = 0 {
         didSet {
             if score < 0 {
-                scoreLabel.text = "0"
+                score = 0
+                scoreLabel.text = String(score)
             } else {
                 scoreLabel.text = String(score)
             }
