@@ -10,6 +10,8 @@ import SpriteKit
 import GameplayKit
 
 class GameScene: SKScene {
+    var gameSpeed: CGFloat!
+    
     //Initialize score starting at 0
     var score = 0 {
         didSet {
@@ -35,7 +37,6 @@ class GameScene: SKScene {
     override func didMove(to view: SKView) {
         //Called when the scene has been displayed
         
-        //TODO: Create three squares with the names one,two,three
         createSquares(name: "one")
         createSquares(name: "two")
         createSquares(name: "three")
@@ -65,29 +66,32 @@ class GameScene: SKScene {
     }
     
     func createSquares(name: String) {
+        if score < 50 {
+            gameSpeed = 6
+        } else if score < 100 {
+            gameSpeed = 8
+        } else {
+            gameSpeed = 11
+        }
+        
+        var randomColor: UIColor {
+            let hue : CGFloat = CGFloat(arc4random() % 256) / 256
+            let saturation : CGFloat = CGFloat(arc4random() % 128) / 256 + 0.5
+            let brightness : CGFloat = CGFloat(arc4random() % 128) / 256 + 0.5
+                        
+            return UIColor(hue: hue, saturation: saturation, brightness: brightness, alpha: 1)
+        }
+        
         let screenHeight: CGFloat = view!.bounds.height
-        //TODO: Set up square properties
-        //1. Create a CGSize for the square with (width: 80, height: 80)
         let size = CGSize(width: 80, height: 80)
-        //2. Create a Square node with a texture of nil. a color of .green and the size we created above
-        let square = SKSpriteNode(texture: nil, color: .green, size: size)
-        //3. Set the squares name to the name we pass into this function
+        let square = SKSpriteNode(texture: nil, color: randomColor, size: size)
         square.name = name
-        
-        
-        //TODO: Set up the Squares x and y positions
-        //1. Squares y positions shoud start at 40
         square.position.y = 40
-        //2. Squares x positon should use the randomNumber generator provided above
         square.position.x = randomNumber()
         
         //Create an action to move the square up the screen
-        let action = SKAction.customAction(withDuration: 6.0, actionBlock: { (square, _) in
-            //TODO: Set up the squares animation
-            //1. The squares y position should increase by 10
-            square.position.y += 5
-            //2. Create an if statement that checks if the squares y position is >= to the screens height
-            //If it is remove the square and create a new square with the same name
+        let action = SKAction.customAction(withDuration: 2.0, actionBlock: { (square, _) in
+            square.position.y += self.gameSpeed
             if square.position.y >= screenHeight {
                 square.removeFromParent()
                 self.score -= 1
@@ -95,30 +99,21 @@ class GameScene: SKScene {
             }
         })
         
-        //TODO: Have the square run the above animation forever and add the square to the SKScene!
         square.run(SKAction.repeatForever(action))
         addChild(square)
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        //Loop through an array of touch values
         for touch in touches {
             
-            //Grab the position of that touch value
             let positionInScene = touch.location(in: self)
             
-            //Find the name for the node in that location
             let name = self.atPoint(positionInScene).name
             
-            //Check if there is an node there.
             if name != nil {
-                //TODO: Remove the square
                 let square = self.atPoint(positionInScene)
-                //Remove node from parent view
                 square.removeFromParent()
-                //Increase the score by one
                 score += 1
-                //Create the square again with the same name
                 createSquares(name: name!)
             }
         }
